@@ -24,13 +24,13 @@
 
 html,
 body {
+  background: var(--paper);
   height: 100%;
   margin: 0;
   overflow: hidden;
 }
 
 body {
-  background: #e8eeec;
   color: var(--ink);
   font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -495,7 +495,7 @@ button:disabled {
 
 .bottom-nav {
   align-items: stretch;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--paper);
   border-top: 1px solid rgba(36, 63, 88, 0.08);
   bottom: 0;
   display: grid;
@@ -508,8 +508,6 @@ button:disabled {
   transform: translateX(-50%);
   width: 100%;
   z-index: 1000;
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
 }
 
 .nav-item {
