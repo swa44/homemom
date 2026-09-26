@@ -20,18 +20,32 @@ function levelLabel(position: number, count: number) {
   return `${position + 1}단`;
 }
 
+function normalizeLevelCount(value: string) {
+  return Math.min(10, Math.max(1, Number(value) || 1));
+}
+
+function PreviewCompartments({ zone }: { zone: PreviewZone }) {
+  return (
+    <div className={`freezer-preview-zone is-${zone.type}`}>
+      <span className="freezer-preview-zone-name">{zone.label}</span>
+      <div className="freezer-preview-levels" style={{ gridTemplateRows: `repeat(${zone.levels}, minmax(0, 1fr))` }}>
+        {Array.from({ length: zone.levels }, (_, index) => (
+          <div key={`${zone.key}-${index}`}><span>{levelLabel(index, zone.levels)}</span></div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function FreezerLayoutPreview({ type, bodyLevels, hasDoor, doorLevels }: { type: ApplianceType; bodyLevels: number; hasDoor: boolean; doorLevels: number }) {
-  const zones: PreviewZone[] = type === "side_by_side"
+  const bodyZones: PreviewZone[] = type === "side_by_side"
     ? [
-        ...(hasDoor ? [{ key: "left-door", label: "왼쪽 문", levels: doorLevels, type: "door" as const }] : []),
-        { key: "left-body", label: "왼쪽 본체", levels: bodyLevels, type: "body" },
-        { key: "right-body", label: "오른쪽 본체", levels: bodyLevels, type: "body" },
-        ...(hasDoor ? [{ key: "right-door", label: "오른쪽 문", levels: doorLevels, type: "door" as const }] : []),
+        { key: "left-body", label: "왼쪽", levels: bodyLevels, type: "body" },
+        { key: "right-body", label: "오른쪽", levels: bodyLevels, type: "body" },
       ]
-    : [
-        { key: "body", label: "본체", levels: bodyLevels, type: "body" },
-        ...(hasDoor ? [{ key: "door", label: "문", levels: doorLevels, type: "door" as const }] : []),
-      ];
+    : [{ key: "body", label: "본체", levels: bodyLevels, type: "body" }];
+  const leftDoor: PreviewZone = { key: "left-door", label: "왼쪽 문", levels: doorLevels, type: "door" };
+  const rightDoor: PreviewZone = { key: "right-door", label: type === "side_by_side" ? "오른쪽 문" : "문 수납", levels: doorLevels, type: "door" };
 
   return (
     <figure className="freezer-layout-preview">
@@ -39,21 +53,20 @@ function FreezerLayoutPreview({ type, bodyLevels, hasDoor, doorLevels }: { type:
         <span>구성 미리보기</span>
         <strong>{type === "side_by_side" ? "양문형" : "일반형"}{hasDoor ? " · 문 수납 포함" : " · 본체만"}</strong>
       </figcaption>
-      <div
-        className={`freezer-preview-cabinet is-${type}`}
-        key={`${type}-${hasDoor ? "door" : "no-door"}`}
-        style={{ gridTemplateColumns: zones.map((zone) => zone.type === "door" ? "0.72fr" : "1fr").join(" ") }}
-      >
-        {zones.map((zone) => (
-          <div className={`freezer-preview-zone is-${zone.type}`} key={zone.key}>
-            <span>{zone.label}</span>
-            <div className="freezer-preview-levels" style={{ gridTemplateRows: `repeat(${zone.levels}, minmax(0, 1fr))` }}>
-              {Array.from({ length: zone.levels }, (_, index) => (
-                <div key={`${zone.key}-${index}`}><span>{levelLabel(index, zone.levels)}</span></div>
-              ))}
-            </div>
+      <div className={`freezer-preview-scene is-${type}${hasDoor ? " has-door" : ""}`} key={`${type}-${hasDoor ? "door" : "no-door"}`}>
+        {type === "side_by_side" && hasDoor ? (
+          <div className="freezer-preview-door is-left"><PreviewCompartments zone={leftDoor} /><i className="freezer-door-handle" /></div>
+        ) : null}
+        <div className="freezer-preview-body">
+          <div className="freezer-preview-crown"><i /><span>❄</span><i /></div>
+          <div className="freezer-preview-interior" style={{ gridTemplateColumns: `repeat(${bodyZones.length}, minmax(0, 1fr))` }}>
+            {bodyZones.map((zone) => <PreviewCompartments zone={zone} key={zone.key} />)}
           </div>
-        ))}
+          <div className="freezer-preview-feet"><i /><i /></div>
+        </div>
+        {hasDoor ? (
+          <div className="freezer-preview-door is-right"><PreviewCompartments zone={rightDoor} /><i className="freezer-door-handle" /></div>
+        ) : null}
       </div>
       <p>본체 {bodyLevels}칸{hasDoor ? ` · 문 수납 ${doorLevels}칸` : " · 문 수납 없음"}</p>
     </figure>
@@ -66,13 +79,15 @@ export function FreezerManagementCard() {
   const [working, setWorking] = useState(false);
   const [name, setName] = useState("");
   const [type, setType] = useState<ApplianceType>("side_by_side");
-  const [bodyLevels, setBodyLevels] = useState(3);
+  const [bodyLevels, setBodyLevels] = useState("3");
   const [hasDoor, setHasDoor] = useState(true);
-  const [doorLevels, setDoorLevels] = useState(3);
+  const [doorLevels, setDoorLevels] = useState("3");
   const [shareHousehold, setShareHousehold] = useState(true);
   const [joinCode, setJoinCode] = useState("");
   const [copiedId, setCopiedId] = useState("");
   const [error, setError] = useState("");
+  const resolvedBodyLevels = normalizeLevelCount(bodyLevels);
+  const resolvedDoorLevels = normalizeLevelCount(doorLevels);
 
   const createFreezer = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -83,9 +98,9 @@ export function FreezerManagementCard() {
     const { error: createError } = await supabase.rpc("homemom_create_freezer", {
       requested_name: name.trim(),
       requested_type: type,
-      requested_body_levels: bodyLevels,
+      requested_body_levels: resolvedBodyLevels,
       requested_has_door: hasDoor,
-      requested_door_levels: hasDoor ? doorLevels : 0,
+      requested_door_levels: hasDoor ? resolvedDoorLevels : 0,
       requested_share_household: shareHousehold,
     });
     if (createError) {
@@ -134,11 +149,11 @@ export function FreezerManagementCard() {
             <button type="button" className={type === "standard" ? "is-selected" : ""} onClick={() => setType("standard")}><DoorOpen size={18} />일반형</button>
           </div>
           <div className="freezer-level-inputs">
-            <label><span>본체 칸 수</span><input type="number" min={1} max={10} value={bodyLevels} onChange={(event) => setBodyLevels(Math.min(10, Math.max(1, Number(event.target.value))))} /></label>
+            <label><span>본체 칸 수</span><input type="number" min={1} max={10} value={bodyLevels} onChange={(event) => setBodyLevels(event.target.value)} onBlur={() => setBodyLevels(String(resolvedBodyLevels))} /></label>
             <label className="door-storage-toggle"><input type="checkbox" checked={hasDoor} onChange={(event) => setHasDoor(event.target.checked)} /><span>문 수납 사용</span></label>
-            {hasDoor ? <label><span>문 수납 칸 수</span><input type="number" min={1} max={10} value={doorLevels} onChange={(event) => setDoorLevels(Math.min(10, Math.max(1, Number(event.target.value))))} /></label> : null}
+            {hasDoor ? <label><span>문 수납 칸 수</span><input type="number" min={1} max={10} value={doorLevels} onChange={(event) => setDoorLevels(event.target.value)} onBlur={() => setDoorLevels(String(resolvedDoorLevels))} /></label> : null}
           </div>
-          <FreezerLayoutPreview type={type} bodyLevels={bodyLevels} hasDoor={hasDoor} doorLevels={doorLevels} />
+          <FreezerLayoutPreview type={type} bodyLevels={resolvedBodyLevels} hasDoor={hasDoor} doorLevels={resolvedDoorLevels} />
           <label className="share-household-toggle"><input type="checkbox" checked={shareHousehold} onChange={(event) => setShareHousehold(event.target.checked)} /><span><strong>우리 집 가족과 공유</strong><small>가족 구성원의 냉장고 탭에도 함께 표시됩니다.</small></span></label>
           <button className="primary-button" type="submit" disabled={working || !name.trim()}><Plus size={17} /> 냉장고 추가</button>
         </form>

@@ -1515,7 +1515,9 @@ button:disabled {
 }
 
 .freezer-layout-preview {
-  background: linear-gradient(145deg, #f7faf9, #edf3f1);
+  background:
+    radial-gradient(circle at 50% 72%, rgba(94, 177, 165, 0.12), transparent 46%),
+    linear-gradient(145deg, #f8fbfa, #eaf1ef);
   border: 1px solid #e0e9e6;
   border-radius: 16px;
   margin: 0;
@@ -1541,87 +1543,214 @@ button:disabled {
   font-size: 11px;
 }
 
-.freezer-preview-cabinet {
+.freezer-preview-scene {
+  align-items: stretch;
   animation: freezer-preview-enter 220ms ease-out;
-  background: #d8e4e1;
-  border: 3px solid var(--navy);
-  border-radius: 15px;
-  box-shadow: 0 7px 16px rgba(33, 64, 86, 0.1);
-  display: grid;
-  gap: 3px;
-  height: 190px;
+  display: flex;
+  height: 205px;
+  justify-content: center;
   margin: 0 auto;
-  max-width: 330px;
-  overflow: hidden;
-  padding: 3px;
+  max-width: 350px;
+  padding: 5px 0 10px;
+  perspective: 760px;
+  position: relative;
 }
 
-.freezer-preview-cabinet.is-standard {
-  max-width: 220px;
+.freezer-preview-scene::after {
+  background: rgba(38, 63, 78, 0.14);
+  border-radius: 50%;
+  bottom: 1px;
+  content: "";
+  filter: blur(5px);
+  height: 13px;
+  left: 18%;
+  position: absolute;
+  right: 18%;
+  z-index: 0;
+}
+
+.freezer-preview-body {
+  background: linear-gradient(120deg, #bac8c9 0%, #f4f7f6 18%, #d7e1e1 55%, #aebfc0 100%);
+  border: 1px solid #9aabad;
+  border-radius: 13px 13px 10px 10px;
+  box-shadow: inset 1px 0 rgba(255, 255, 255, 0.8), 0 8px 17px rgba(33, 64, 86, 0.18);
+  display: flex;
+  flex-direction: column;
+  padding: 7px 7px 5px;
+  position: relative;
+  width: 176px;
+  z-index: 2;
+}
+
+.freezer-preview-scene.is-standard .freezer-preview-body {
+  width: 150px;
+}
+
+.freezer-preview-crown {
+  align-items: center;
+  color: #82aaa4;
+  display: flex;
+  flex: 0 0 19px;
+  font-size: 9px;
+  gap: 5px;
+  justify-content: center;
+}
+
+.freezer-preview-crown i {
+  background: #91a4a5;
+  border-radius: 10px;
+  height: 2px;
+  width: 21px;
+}
+
+.freezer-preview-interior {
+  background:
+    radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.95), transparent 28%),
+    linear-gradient(180deg, #e9f7f7, #d7e7e7);
+  border: 4px solid #73878b;
+  border-radius: 7px;
+  box-shadow: inset 0 0 16px rgba(44, 90, 101, 0.16);
+  display: grid;
+  flex: 1;
+  gap: 3px;
+  min-height: 0;
+  padding: 4px;
 }
 
 .freezer-preview-zone {
-  background: #f9fbfa;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
   min-width: 0;
+}
+
+.freezer-preview-zone-name {
+  color: #46646a;
+  font-size: 7px;
+  font-weight: 850;
+  line-height: 13px;
   overflow: hidden;
-}
-
-.freezer-preview-zone:first-child {
-  border-radius: 9px 2px 2px 9px;
-}
-
-.freezer-preview-zone:last-child {
-  border-radius: 2px 9px 9px 2px;
-}
-
-.freezer-preview-zone > span {
-  background: #eaf1ef;
-  color: var(--ink-sub);
-  flex: 0 0 auto;
-  font-size: 8px;
-  font-weight: 800;
-  overflow: hidden;
-  padding: 5px 2px;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.freezer-preview-zone.is-door > span {
-  background: #dff1ed;
-  color: var(--mint);
-}
-
 .freezer-preview-levels {
   display: grid;
-  flex: 1;
-  gap: 2px;
+  gap: 3px;
   min-height: 0;
-  padding: 2px;
 }
 
 .freezer-preview-levels > div {
   align-items: center;
   animation: freezer-compartment-pop 180ms ease-out both;
-  background: #fff;
-  border: 1px solid #dfe8e5;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(215, 235, 234, 0.82));
+  border-bottom: 3px solid rgba(109, 147, 150, 0.62);
+  border-radius: 2px 2px 4px 4px;
+  box-shadow: 0 1px 2px rgba(38, 75, 83, 0.12);
   display: flex;
   justify-content: center;
   min-height: 0;
+  position: relative;
 }
 
-.freezer-preview-zone.is-door .freezer-preview-levels > div {
-  background: #f2faf8;
-  border-color: #cce4de;
+.freezer-preview-levels > div::after {
+  background: rgba(255, 255, 255, 0.7);
+  content: "";
+  height: 1px;
+  left: 8%;
+  position: absolute;
+  right: 8%;
+  top: 2px;
 }
 
 .freezer-preview-levels > div > span {
-  color: #6b7976;
+  color: #597479;
   font-size: 7px;
-  font-weight: 750;
+  font-weight: 800;
   line-height: 1;
+}
+
+.freezer-preview-feet {
+  display: flex;
+  height: 5px;
+  justify-content: space-between;
+  padding: 3px 10px 0;
+}
+
+.freezer-preview-feet i {
+  background: #56676a;
+  border-radius: 0 0 2px 2px;
+  height: 5px;
+  width: 14px;
+}
+
+.freezer-preview-door {
+  background: linear-gradient(115deg, #c4d1d1, #eef3f2 48%, #aebfc0);
+  border: 1px solid #98aaab;
+  box-shadow: 0 8px 14px rgba(33, 64, 86, 0.14), inset 1px 0 rgba(255, 255, 255, 0.7);
+  height: 184px;
+  margin-top: 5px;
+  padding: 9px 6px 8px;
+  position: relative;
+  transform-origin: right center;
+  width: 64px;
+  z-index: 3;
+}
+
+.freezer-preview-door.is-left {
+  border-radius: 11px 3px 3px 11px;
+  margin-right: -3px;
+  transform: rotateY(24deg) skewY(-1deg);
+  transform-origin: right center;
+}
+
+.freezer-preview-door.is-right {
+  border-radius: 3px 11px 11px 3px;
+  margin-left: -3px;
+  transform: rotateY(-24deg) skewY(1deg);
+  transform-origin: left center;
+}
+
+.freezer-preview-scene.is-standard .freezer-preview-door {
+  width: 78px;
+}
+
+.freezer-preview-door .freezer-preview-zone {
+  background: linear-gradient(180deg, #d5e2e0, #c3d3d1);
+  border: 2px solid #899b9c;
+  border-radius: 6px;
+  height: 100%;
+  padding: 3px;
+}
+
+.freezer-preview-door .freezer-preview-zone-name {
+  color: #48766f;
+}
+
+.freezer-preview-door .freezer-preview-levels > div {
+  background: linear-gradient(180deg, rgba(237, 251, 248, 0.78), rgba(174, 215, 207, 0.7));
+  border: 1px solid rgba(87, 139, 132, 0.46);
+  border-bottom: 5px solid rgba(75, 130, 122, 0.58);
+  border-radius: 2px 2px 5px 5px;
+}
+
+.freezer-door-handle {
+  background: linear-gradient(90deg, #738486, #d8e0df 52%, #687a7c);
+  border-radius: 5px;
+  box-shadow: 0 1px 2px rgba(26, 47, 55, 0.3);
+  height: 54px;
+  position: absolute;
+  top: 58px;
+  width: 4px;
+}
+
+.freezer-preview-door.is-left .freezer-door-handle {
+  right: -7px;
+}
+
+.freezer-preview-door.is-right .freezer-door-handle {
+  left: -7px;
 }
 
 .freezer-layout-preview > p {
@@ -1643,7 +1772,7 @@ button:disabled {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .freezer-preview-cabinet,
+  .freezer-preview-scene,
   .freezer-preview-levels > div {
     animation: none;
   }
