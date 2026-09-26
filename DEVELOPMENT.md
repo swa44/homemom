@@ -45,6 +45,6 @@ allowedDevOrigins: ["192.168.*.*"]
 - Supabase `Authentication → URL Configuration → Redirect URLs`에 다음을 등록한다.
   - `http://localhost:3000/**`
   - `http://192.168.*.*:3000/**` (와일드카드가 허용되지 않으면 현재 IP를 직접 등록)
-  - 배포 주소 `https://<project>.vercel.app/**`
+  - 배포 주소 `https://homemom.vercel.app/**`
 - 카카오 개발자 콘솔의 Redirect URI는 Supabase 콜백 주소 하나만 등록하면 된다. 앱으로 돌아오는 주소는 Supabase가 처리한다.
 - 사설망 HTTP 주소에서는 Service Worker와 PWA 설치가 동작하지 않는다 (HTTPS 또는 localhost만 허용). PWA 설치 테스트는 Vercel 배포 주소에서 한다.

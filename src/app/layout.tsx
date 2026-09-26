@@ -4,6 +4,7 @@ import { PwaRegister } from "@/components/PwaRegister";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://homemom.vercel.app"),
   title: "홈맘 — 냉동실 관리",
   description: "두 냉동실의 품목과 정확한 보관 위치를 빠르게 찾는 개인용 냉동실 관리 앱",
   applicationName: "홈맘",

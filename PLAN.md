@@ -28,7 +28,7 @@
 | 수량 0 처리 | DB에서 즉시 삭제하고 목록에서도 바로 사라진다. 되돌리기는 두지 않는다. |
 | 장보기 목록 | 냉동실과 연동하지 않는 별도 체크리스트 |
 | 관리자 앱 | 없음 |
-| 도메인 | 처음에는 Vercel 기본 주소(`*.vercel.app`) 사용 |
+| 배포 주소 | `https://homemom.vercel.app` |
 
 ## 4. 고정 보관 위치
 
@@ -289,13 +289,13 @@ SQL은 실제 개발 단계에서 별도로 제공하며 사용자가 Supabase S
 7. 전체 검색과 위치 표시
 8. 독립 장보기 목록
 9. PWA와 실기기 확인
-10. Vercel 배포
+10. `https://homemom.vercel.app`에 Vercel 배포
 
 ## 11. 카카오 로그인 준비 메모
 
 - Kakao Developers에서 애플리케이션을 만들고 카카오 로그인을 활성화한다.
 - Redirect URI는 `https://<supabase-project-ref>.supabase.co/auth/v1/callback`으로 설정한다.
-- Supabase의 URL Configuration에 로컬, 사설망 테스트 주소, Vercel 주소를 등록한다.
+- Supabase의 URL Configuration에 `http://localhost:3000/auth/callback`과 `https://homemom.vercel.app/auth/callback`을 등록한다.
 - 이메일 없이 로그인할 수 있도록 Supabase Kakao Provider 설정을 개발 단계에서 확인한다.
 
 ## 12. 남은 확인 항목
