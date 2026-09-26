@@ -14,7 +14,7 @@
   --ink-sub: #68757c;
   --line: #e2e8e6;
   --danger: #c94d4d;
-  --nav-height: 72px;
+  --nav-height: 64px;
   --shadow: 0 14px 40px rgba(28, 52, 68, 0.1);
 }
 
@@ -503,7 +503,7 @@ button:disabled {
   height: calc(var(--nav-height) + env(safe-area-inset-bottom));
   left: 50%;
   max-width: 600px;
-  padding: 7px 14px env(safe-area-inset-bottom);
+  padding: 3px 14px env(safe-area-inset-bottom);
   position: fixed;
   transform: translateX(-50%);
   width: 100%;
