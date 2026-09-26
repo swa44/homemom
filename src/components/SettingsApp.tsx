@@ -5,34 +5,20 @@ import { CheckCircle2, Download, LogOut, ShieldCheck, Trash2, UserRound } from "
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
 import { FamilySharingCard } from "@/components/FamilySharingCard";
+import { usePwaInstall } from "@/components/PwaInstallProvider";
 import { createClient } from "@/lib/supabase/client";
-
-type BeforeInstallPromptEvent = Event & {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-};
 
 export function SettingsApp() {
   const router = useRouter();
-  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [installed, setInstalled] = useState(false);
   const [nickname, setNickname] = useState("카카오 사용자");
+  const { canInstall, installed, install } = usePwaInstall();
 
   useEffect(() => {
-    const standalone = window.matchMedia("(display-mode: standalone)").matches
-      || Boolean((navigator as Navigator & { standalone?: boolean }).standalone);
-    queueMicrotask(() => setInstalled(standalone));
-    const capture = (event: Event) => {
-      event.preventDefault();
-      setInstallPrompt(event as BeforeInstallPromptEvent);
-    };
-    window.addEventListener("beforeinstallprompt", capture);
     const supabase = createClient();
     void supabase.auth.getUser().then(({ data }) => {
       const metadata = data.user?.user_metadata;
       setNickname(metadata?.full_name ?? metadata?.name ?? metadata?.preferred_username ?? "카카오 사용자");
     });
-    return () => window.removeEventListener("beforeinstallprompt", capture);
   }, []);
 
   const clearData = async () => {
@@ -83,17 +69,11 @@ export function SettingsApp() {
         <button
           className="settings-row"
           type="button"
-          disabled={!installPrompt || installed}
-          onClick={async () => {
-            if (!installPrompt) return;
-            await installPrompt.prompt();
-            const { outcome } = await installPrompt.userChoice;
-            if (outcome === "accepted") setInstalled(true);
-            setInstallPrompt(null);
-          }}
+          disabled={!canInstall || installed}
+          onClick={() => void install()}
         >
           <span className="settings-icon"><Download size={19} /></span>
-          <span><strong>{installed ? "홈 화면에 설치됨" : "홈 화면에 앱 설치"}</strong><small>{installPrompt ? "앱처럼 빠르게 열 수 있어요" : "지원되는 브라우저에서 설치할 수 있어요"}</small></span>
+          <span><strong>{installed ? "홈 화면에 설치됨" : "홈 화면에 앱 설치"}</strong><small>{canInstall ? "정식 앱처럼 설치할 수 있어요" : "설치 가능 상태를 확인하고 있어요"}</small></span>
         </button>
       </section>
 

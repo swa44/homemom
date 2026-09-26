@@ -850,6 +850,22 @@ button:disabled {
   gap: 8px;
 }
 
+.item-detail-location-heading strong {
+  color: var(--navy-deep);
+  display: block;
+  font-size: 21px;
+  letter-spacing: -0.04em;
+  margin-top: 3px;
+}
+
+.item-detail-location .freezer-levels button {
+  font-size: 14px;
+}
+
+.item-detail-location .selected-location strong {
+  font-size: 14px;
+}
+
 .item-detail-extra {
   background: #f8faf9;
   border: 1px solid var(--line);

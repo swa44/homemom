@@ -1,5 +1,12 @@
-const CACHE_NAME = "homemom-shell-v1";
-const SHELL_FILES = ["/offline", "/icon.svg"];
+const CACHE_NAME = "homemom-shell-v2";
+const SHELL_FILES = [
+  "/offline",
+  "/icon.svg",
+  "/icon-192.png",
+  "/icon-512.png",
+  "/icon-maskable-512.png",
+  "/apple-touch-icon.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_FILES)));

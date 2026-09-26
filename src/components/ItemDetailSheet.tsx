@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { CalendarDays, Pencil, X } from "lucide-react";
 import { LocationSelector } from "@/components/LocationSelector";
-import type { FreezerItem } from "@/lib/types";
+import { FREEZERS, type FreezerItem } from "@/lib/types";
 
 type Props = {
   item: FreezerItem;
@@ -40,7 +40,10 @@ export function ItemDetailSheet({ item, onClose, onEdit }: Props) {
         </div>
 
         <div className="item-detail-location">
-          <span className="detail-label">보관 위치</span>
+          <div className="item-detail-location-heading">
+            <span className="detail-label">보관 위치</span>
+            <strong>{FREEZERS[item.freezer].shortLabel}</strong>
+          </div>
           <LocationSelector
             freezer={item.freezer}
             section={item.section}

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { BottomNav } from "@/components/BottomNav";
+import { PwaInstallProvider } from "@/components/PwaInstallProvider";
 import { PwaRegister } from "@/components/PwaRegister";
 import "./globals.css";
 
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
   description: "두 냉동실의 품목과 정확한 보관 위치를 빠르게 찾는 개인용 냉동실 관리 앱",
   applicationName: "홈맘",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "홈맘" },
-  icons: { icon: "/icon.svg", apple: "/icon.svg" },
+  icons: { icon: [{ url: "/icon.svg", type: "image/svg+xml" }, { url: "/icon-192.png", sizes: "192x192", type: "image/png" }], apple: "/apple-touch-icon.png" },
 };
 
 export const viewport: Viewport = {
@@ -23,11 +24,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="ko">
       <body>
-        <div className="site-shell">
-          {children}
-          <BottomNav />
-        </div>
-        <PwaRegister />
+        <PwaInstallProvider>
+          <div className="site-shell">
+            {children}
+            <BottomNav />
+          </div>
+          <PwaRegister />
+        </PwaInstallProvider>
       </body>
     </html>
   );
