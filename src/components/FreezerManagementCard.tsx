@@ -6,6 +6,60 @@ import { createClient } from "@/lib/supabase/client";
 import type { ApplianceType } from "@/lib/types";
 import { useFreezers } from "@/lib/use-freezers";
 
+type PreviewZone = {
+  key: string;
+  label: string;
+  levels: number;
+  type: "body" | "door";
+};
+
+function levelLabel(position: number, count: number) {
+  if (count === 1) return "전체";
+  if (count === 2) return position === 0 ? "상단" : "하단";
+  if (count === 3) return ["상단", "중단", "하단"][position];
+  return `${position + 1}단`;
+}
+
+function FreezerLayoutPreview({ type, bodyLevels, hasDoor, doorLevels }: { type: ApplianceType; bodyLevels: number; hasDoor: boolean; doorLevels: number }) {
+  const zones: PreviewZone[] = type === "side_by_side"
+    ? [
+        ...(hasDoor ? [{ key: "left-door", label: "왼쪽 문", levels: doorLevels, type: "door" as const }] : []),
+        { key: "left-body", label: "왼쪽 본체", levels: bodyLevels, type: "body" },
+        { key: "right-body", label: "오른쪽 본체", levels: bodyLevels, type: "body" },
+        ...(hasDoor ? [{ key: "right-door", label: "오른쪽 문", levels: doorLevels, type: "door" as const }] : []),
+      ]
+    : [
+        { key: "body", label: "본체", levels: bodyLevels, type: "body" },
+        ...(hasDoor ? [{ key: "door", label: "문", levels: doorLevels, type: "door" as const }] : []),
+      ];
+
+  return (
+    <figure className="freezer-layout-preview">
+      <figcaption>
+        <span>구성 미리보기</span>
+        <strong>{type === "side_by_side" ? "양문형" : "일반형"}{hasDoor ? " · 문 수납 포함" : " · 본체만"}</strong>
+      </figcaption>
+      <div
+        className={`freezer-preview-cabinet is-${type}`}
+        key={`${type}-${hasDoor ? "door" : "no-door"}`}
+        style={{ gridTemplateColumns: zones.map((zone) => zone.type === "door" ? "0.72fr" : "1fr").join(" ") }}
+      >
+        {zones.map((zone) => (
+          <div className={`freezer-preview-zone is-${zone.type}`} key={zone.key}>
+            <span>{zone.label}</span>
+            <div className="freezer-preview-levels" style={{ gridTemplateRows: `repeat(${zone.levels}, minmax(0, 1fr))` }}>
+              {Array.from({ length: zone.levels }, (_, index) => (
+                <div key={`${zone.key}-${index}`}><span>{levelLabel(index, zone.levels)}</span></div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <p>본체 {bodyLevels}칸{hasDoor ? ` · 문 수납 ${doorLevels}칸` : " · 문 수납 없음"}</p>
+    </figure>
+  );
+}
+
 export function FreezerManagementCard() {
   const { freezers, ready, error: loadError, reload } = useFreezers();
   const [adding, setAdding] = useState(false);
@@ -84,6 +138,7 @@ export function FreezerManagementCard() {
             <label className="door-storage-toggle"><input type="checkbox" checked={hasDoor} onChange={(event) => setHasDoor(event.target.checked)} /><span>문 수납 사용</span></label>
             {hasDoor ? <label><span>문 수납 칸 수</span><input type="number" min={1} max={10} value={doorLevels} onChange={(event) => setDoorLevels(Math.min(10, Math.max(1, Number(event.target.value))))} /></label> : null}
           </div>
+          <FreezerLayoutPreview type={type} bodyLevels={bodyLevels} hasDoor={hasDoor} doorLevels={doorLevels} />
           <label className="share-household-toggle"><input type="checkbox" checked={shareHousehold} onChange={(event) => setShareHousehold(event.target.checked)} /><span><strong>우리 집 가족과 공유</strong><small>가족 구성원의 냉장고 탭에도 함께 표시됩니다.</small></span></label>
           <button className="primary-button" type="submit" disabled={working || !name.trim()}><Plus size={17} /> 냉장고 추가</button>
         </form>

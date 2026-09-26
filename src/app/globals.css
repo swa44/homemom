@@ -1514,6 +1514,141 @@ button:disabled {
   margin: 0 0 0 6px !important;
 }
 
+.freezer-layout-preview {
+  background: linear-gradient(145deg, #f7faf9, #edf3f1);
+  border: 1px solid #e0e9e6;
+  border-radius: 16px;
+  margin: 0;
+  overflow: hidden;
+  padding: 13px;
+}
+
+.freezer-layout-preview figcaption {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 11px;
+}
+
+.freezer-layout-preview figcaption span {
+  color: var(--ink-sub);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.freezer-layout-preview figcaption strong {
+  color: var(--mint);
+  font-size: 11px;
+}
+
+.freezer-preview-cabinet {
+  animation: freezer-preview-enter 220ms ease-out;
+  background: #d8e4e1;
+  border: 3px solid var(--navy);
+  border-radius: 15px;
+  box-shadow: 0 7px 16px rgba(33, 64, 86, 0.1);
+  display: grid;
+  gap: 3px;
+  height: 190px;
+  margin: 0 auto;
+  max-width: 330px;
+  overflow: hidden;
+  padding: 3px;
+}
+
+.freezer-preview-cabinet.is-standard {
+  max-width: 220px;
+}
+
+.freezer-preview-zone {
+  background: #f9fbfa;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.freezer-preview-zone:first-child {
+  border-radius: 9px 2px 2px 9px;
+}
+
+.freezer-preview-zone:last-child {
+  border-radius: 2px 9px 9px 2px;
+}
+
+.freezer-preview-zone > span {
+  background: #eaf1ef;
+  color: var(--ink-sub);
+  flex: 0 0 auto;
+  font-size: 8px;
+  font-weight: 800;
+  overflow: hidden;
+  padding: 5px 2px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.freezer-preview-zone.is-door > span {
+  background: #dff1ed;
+  color: var(--mint);
+}
+
+.freezer-preview-levels {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-height: 0;
+  padding: 2px;
+}
+
+.freezer-preview-levels > div {
+  align-items: center;
+  animation: freezer-compartment-pop 180ms ease-out both;
+  background: #fff;
+  border: 1px solid #dfe8e5;
+  display: flex;
+  justify-content: center;
+  min-height: 0;
+}
+
+.freezer-preview-zone.is-door .freezer-preview-levels > div {
+  background: #f2faf8;
+  border-color: #cce4de;
+}
+
+.freezer-preview-levels > div > span {
+  color: #6b7976;
+  font-size: 7px;
+  font-weight: 750;
+  line-height: 1;
+}
+
+.freezer-layout-preview > p {
+  color: var(--ink-sub);
+  font-size: 9px;
+  font-weight: 650;
+  margin: 9px 0 0;
+  text-align: center;
+}
+
+@keyframes freezer-preview-enter {
+  from { opacity: 0.55; transform: scale(0.985); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes freezer-compartment-pop {
+  from { opacity: 0; transform: scaleY(0.65); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .freezer-preview-cabinet,
+  .freezer-preview-levels > div {
+    animation: none;
+  }
+}
+
 .share-household-toggle {
   align-items: center;
   background: #f5f8f7;
