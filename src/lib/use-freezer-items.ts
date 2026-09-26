@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { FreezerId, FreezerItem, FreezerSection } from "@/lib/types";
+import type { FreezerItem } from "@/lib/types";
 
 type ItemDraft = Omit<FreezerItem, "id" | "createdAt" | "updatedAt">;
 
@@ -11,9 +11,8 @@ type ItemRow = {
   name: string;
   quantity: number | string;
   unit: string;
-  freezer: FreezerId;
-  section: FreezerSection;
-  level: 1 | 2 | 3;
+  freezer_id: string;
+  compartment_id: string;
   expires_on: string | null;
   memo: string | null;
   created_at: string;
@@ -26,9 +25,8 @@ function fromRow(row: ItemRow): FreezerItem {
     name: row.name,
     quantity: Number(row.quantity),
     unit: row.unit,
-    freezer: row.freezer,
-    section: row.section,
-    level: row.level,
+    freezerId: row.freezer_id,
+    compartmentId: row.compartment_id,
     expiresOn: row.expires_on ?? "",
     memo: row.memo ?? "",
     createdAt: row.created_at,
@@ -41,9 +39,8 @@ function toRow(draft: ItemDraft) {
     name: draft.name,
     quantity: draft.quantity,
     unit: draft.unit,
-    freezer: draft.freezer,
-    section: draft.section,
-    level: draft.level,
+    freezer_id: draft.freezerId,
+    compartment_id: draft.compartmentId,
     expires_on: draft.expiresOn || null,
     memo: draft.memo?.trim() || null,
   };
@@ -61,7 +58,7 @@ export function useFreezerItems() {
     const loadItems = async () => {
       const { data, error: fetchError } = await supabase
         .from("homemom_items")
-        .select("id,name,quantity,unit,freezer,section,level,expires_on,memo,created_at,updated_at")
+        .select("id,name,quantity,unit,freezer_id,compartment_id,expires_on,memo,created_at,updated_at")
         .order("name");
       if (!active) return;
       if (fetchError) setError("냉동실 목록을 불러오지 못했어요.");
@@ -93,7 +90,7 @@ export function useFreezerItems() {
     const { data, error: createError } = await supabase
       .from("homemom_items")
       .insert(toRow(draft))
-      .select("id,name,quantity,unit,freezer,section,level,expires_on,memo,created_at,updated_at")
+      .select("id,name,quantity,unit,freezer_id,compartment_id,expires_on,memo,created_at,updated_at")
       .single();
     if (createError || !data) {
       setError("품목을 저장하지 못했어요.");

@@ -4,53 +4,43 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Minus, Plus, Trash2, X } from "lucide-react";
 import { LocationSelector } from "@/components/LocationSelector";
 import {
-  FREEZERS,
-  SECTIONS,
   UNITS,
-  type FreezerId,
+  getFreezer,
+  type FreezerDefinition,
   type FreezerItem,
-  type FreezerSection,
 } from "@/lib/types";
 
 type ItemDraft = Omit<FreezerItem, "id" | "createdAt" | "updatedAt">;
-type SavedLocation = Pick<ItemDraft, "section" | "level">;
 
 type Props = {
   item?: FreezerItem;
-  defaultFreezer: FreezerId;
-  defaultSection?: FreezerSection;
+  freezers: FreezerDefinition[];
+  defaultFreezerId: string;
   onClose: () => void;
   onSave: (draft: ItemDraft) => void | Promise<void>;
   onDelete?: () => void | Promise<void>;
 };
 
-function createDraft(item: FreezerItem | undefined, freezer: FreezerId, section?: FreezerSection): ItemDraft {
-  const targetFreezer = item?.freezer ?? freezer;
+function firstCompartment(freezer: FreezerDefinition | undefined) {
+  return freezer?.zones[0]?.compartments[0]?.id ?? "";
+}
+
+function createDraft(item: FreezerItem | undefined, freezers: FreezerDefinition[], defaultFreezerId: string): ItemDraft {
+  const targetFreezer = getFreezer(freezers, item?.freezerId ?? defaultFreezerId) ?? freezers[0];
   return {
     name: item?.name ?? "",
     quantity: item?.quantity ?? 1,
     unit: item?.unit ?? "개",
-    freezer: targetFreezer,
-    section: item?.section ?? section ?? SECTIONS[targetFreezer][0].id,
-    level: item?.level ?? 1,
+    freezerId: targetFreezer?.id ?? "",
+    compartmentId: item?.compartmentId ?? firstCompartment(targetFreezer),
     expiresOn: item?.expiresOn ?? "",
     memo: item?.memo ?? "",
   };
 }
 
-function createLocationMemory(item: FreezerItem | undefined, freezer: FreezerId, section?: FreezerSection) {
-  const initial = createDraft(item, freezer, section);
-  const locations: Record<FreezerId, SavedLocation> = {
-    main: { section: "left", level: 1 },
-    kimchi: { section: "body", level: 1 },
-  };
-  locations[initial.freezer] = { section: initial.section, level: initial.level };
-  return locations;
-}
-
-export function ItemSheet({ item, defaultFreezer, defaultSection, onClose, onSave, onDelete }: Props) {
-  const [draft, setDraft] = useState(() => createDraft(item, defaultFreezer, defaultSection));
-  const locationMemory = useRef(createLocationMemory(item, defaultFreezer, defaultSection));
+export function ItemSheet({ item, freezers, defaultFreezerId, onClose, onSave, onDelete }: Props) {
+  const [draft, setDraft] = useState(() => createDraft(item, freezers, defaultFreezerId));
+  const locationMemory = useRef<Record<string, string>>({ [draft.freezerId]: draft.compartmentId });
 
   useEffect(() => {
     const shell = document.querySelector<HTMLElement>(".site-shell");
@@ -60,25 +50,27 @@ export function ItemSheet({ item, defaultFreezer, defaultSection, onClose, onSav
     };
   }, []);
 
-  const changeFreezer = (freezer: FreezerId) => {
+  const changeFreezer = (freezerId: string) => {
     setDraft((current) => {
-      locationMemory.current[current.freezer] = { section: current.section, level: current.level };
-      const saved = locationMemory.current[freezer];
-      return { ...current, freezer, section: saved.section, level: saved.level };
+      locationMemory.current[current.freezerId] = current.compartmentId;
+      const target = getFreezer(freezers, freezerId);
+      return { ...current, freezerId, compartmentId: locationMemory.current[freezerId] ?? firstCompartment(target) };
     });
   };
 
-  const changeLocation = (section: FreezerSection, level: 1 | 2 | 3) => {
+  const changeLocation = (compartmentId: string) => {
     setDraft((current) => {
-      locationMemory.current[current.freezer] = { section, level };
-      return { ...current, section, level };
+      locationMemory.current[current.freezerId] = compartmentId;
+      return { ...current, compartmentId };
     });
   };
+
+  const activeFreezer = getFreezer(freezers, draft.freezerId) ?? freezers[0];
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     const name = draft.name.trim();
-    if (!name || !Number.isFinite(draft.quantity) || draft.quantity <= 0) return;
+    if (!name || !draft.compartmentId || !Number.isFinite(draft.quantity) || draft.quantity <= 0) return;
     void onSave({ ...draft, name });
   };
 
@@ -142,24 +134,19 @@ export function ItemSheet({ item, defaultFreezer, defaultSection, onClose, onSav
 
           <fieldset className="location-fieldset">
             <legend>보관 위치</legend>
-            <div className="segmented compact">
-              {(Object.keys(FREEZERS) as FreezerId[]).map((freezer) => (
+            <div className="freezer-picker-scroll" aria-label="냉장고 선택">
+              {freezers.map((freezer) => (
                 <button
-                  className={draft.freezer === freezer ? "is-selected" : ""}
-                  key={freezer}
+                  className={draft.freezerId === freezer.id ? "is-selected" : ""}
+                  key={freezer.id}
                   type="button"
-                  onClick={() => changeFreezer(freezer)}
+                  onClick={() => changeFreezer(freezer.id)}
                 >
-                  {FREEZERS[freezer].shortLabel}
+                  {freezer.name}
                 </button>
               ))}
             </div>
-            <LocationSelector
-              freezer={draft.freezer}
-              section={draft.section}
-              level={draft.level}
-              onChange={changeLocation}
-            />
+            {activeFreezer ? <LocationSelector freezer={activeFreezer} compartmentId={draft.compartmentId} onChange={changeLocation} /> : null}
           </fieldset>
 
           <details className="extra-fields">
@@ -174,7 +161,7 @@ export function ItemSheet({ item, defaultFreezer, defaultSection, onClose, onSav
             </label>
           </details>
 
-          <button className="primary-button" type="submit" disabled={!draft.name.trim() || draft.quantity <= 0}>
+          <button className="primary-button" type="submit" disabled={!draft.name.trim() || !draft.compartmentId || draft.quantity <= 0}>
             {item ? "변경사항 저장" : "냉동실에 추가"}
           </button>
           {item && onDelete ? (

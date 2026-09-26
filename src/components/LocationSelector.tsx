@@ -1,62 +1,40 @@
-import {
-  FREEZERS,
-  LEVELS,
-  getLevelLabel,
-  type FreezerId,
-  type FreezerSection,
-} from "@/lib/types";
+import { getCompartmentLocation, type FreezerDefinition } from "@/lib/types";
 
 type Props = {
-  freezer: FreezerId;
-  section: FreezerSection;
-  level: 1 | 2 | 3;
-  onChange?: (section: FreezerSection, level: 1 | 2 | 3) => void;
+  freezer: FreezerDefinition;
+  compartmentId: string;
+  onChange?: (compartmentId: string) => void;
   readOnly?: boolean;
 };
 
-const VISUAL_SECTIONS: Record<FreezerId, { id: FreezerSection; label: string; kind: "body" | "door" }[]> = {
-  main: [
-    { id: "left_door", label: "좌측 문", kind: "door" },
-    { id: "left", label: "좌측 본체", kind: "body" },
-    { id: "right", label: "우측 본체", kind: "body" },
-    { id: "right_door", label: "우측 문", kind: "door" },
-  ],
-  kimchi: [
-    { id: "body", label: "본체", kind: "body" },
-    { id: "door", label: "문", kind: "door" },
-  ],
-};
-
-export function LocationSelector({ freezer, section, level, onChange, readOnly = false }: Props) {
-  const sections = VISUAL_SECTIONS[freezer];
-  const selectedSection = sections.find((candidate) => candidate.id === section) ?? sections[0];
+export function LocationSelector({ freezer, compartmentId, onChange, readOnly = false }: Props) {
+  const selected = getCompartmentLocation(freezer, compartmentId);
+  const columns = freezer.zones.map((zone) => zone.type === "door" ? "0.74fr" : "1fr").join(" ");
 
   return (
     <div>
       <div
-        className={`freezer-diagram freezer-diagram-${freezer}${readOnly ? " is-readonly" : ""}`}
-        aria-label={`${FREEZERS[freezer].shortLabel} 위치 ${readOnly ? "표시" : "선택"}`}
+        className={`freezer-diagram${readOnly ? " is-readonly" : ""}`}
+        style={{ gridTemplateColumns: columns }}
+        aria-label={`${freezer.name} 위치 ${readOnly ? "표시" : "선택"}`}
       >
-        {sections.map((candidate) => (
-          <div
-            className={`freezer-zone is-${candidate.kind} is-${candidate.id.replace("_", "-")}`}
-            key={candidate.id}
-          >
-            <span className="freezer-zone-label">{candidate.label}</span>
-            <div className="freezer-levels">
-              {LEVELS.map((candidateLevel) => {
-                const selected = section === candidate.id && level === candidateLevel.id;
+        {freezer.zones.map((zone) => (
+          <div className={`freezer-zone is-${zone.type} is-${zone.side}-${zone.type}`} key={zone.id}>
+            <span className="freezer-zone-label">{zone.label}</span>
+            <div className="freezer-levels" style={{ gridTemplateRows: `repeat(${zone.compartments.length}, minmax(46px, 1fr))` }}>
+              {zone.compartments.map((compartment) => {
+                const isSelected = compartment.id === compartmentId;
                 return (
                   <button
-                    aria-label={`${FREEZERS[freezer].shortLabel} ${candidate.label} ${candidateLevel.label}`}
-                    aria-pressed={selected}
-                    className={selected ? "is-selected" : ""}
+                    aria-label={`${freezer.name} ${zone.label} ${compartment.label}`}
+                    aria-pressed={isSelected}
+                    className={isSelected ? "is-selected" : ""}
                     disabled={readOnly}
-                    key={candidateLevel.id}
-                    onClick={() => onChange?.(candidate.id, candidateLevel.id)}
+                    key={compartment.id}
+                    onClick={() => onChange?.(compartment.id)}
                     type="button"
                   >
-                    {candidateLevel.label}
+                    {compartment.label}
                   </button>
                 );
               })}
@@ -66,7 +44,7 @@ export function LocationSelector({ freezer, section, level, onChange, readOnly =
       </div>
       <p className="selected-location" aria-live="polite">
         <span>선택 위치</span>
-        <strong>{FREEZERS[freezer].shortLabel} · {selectedSection.label} · {getLevelLabel(level)}</strong>
+        <strong>{freezer.name} · {selected?.zone.label ?? "위치"} · {selected?.compartment.label ?? "선택 필요"}</strong>
       </p>
     </div>
   );

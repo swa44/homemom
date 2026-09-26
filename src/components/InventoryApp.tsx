@@ -7,19 +7,19 @@ import { ItemDetailSheet } from "@/components/ItemDetailSheet";
 import { ItemSheet } from "@/components/ItemSheet";
 import { QuantityStepper } from "@/components/QuantityStepper";
 import {
-  FREEZERS,
-  SECTIONS,
+  getCompartmentLocation,
+  getFreezer,
   getLocationLabel,
-  type FreezerId,
   type FreezerItem,
-  type FreezerSection,
 } from "@/lib/types";
 import { useFreezerItems } from "@/lib/use-freezer-items";
+import { useFreezers } from "@/lib/use-freezers";
 
 export function InventoryApp() {
   const { items, ready, error, createItem, updateItem, removeItem, updateQuantity } = useFreezerItems();
-  const [activeFreezer, setActiveFreezer] = useState<FreezerId>("main");
-  const [activeSection, setActiveSection] = useState<"all" | FreezerSection>("all");
+  const { freezers, ready: freezersReady, error: freezerError } = useFreezers();
+  const [activeFreezerId, setActiveFreezerId] = useState("all");
+  const [activeZoneId, setActiveZoneId] = useState("all");
   const [query, setQuery] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<FreezerItem>();
@@ -32,15 +32,21 @@ export function InventoryApp() {
         if (normalizedQuery) {
           return `${item.name} ${item.memo ?? ""}`.toLocaleLowerCase("ko").includes(normalizedQuery);
         }
-        return item.freezer === activeFreezer && (activeSection === "all" || item.section === activeSection);
+        if (activeFreezerId !== "all" && item.freezerId !== activeFreezerId) return false;
+        if (activeZoneId !== "all") {
+          const freezer = getFreezer(freezers, item.freezerId);
+          return getCompartmentLocation(freezer, item.compartmentId)?.zone.id === activeZoneId;
+        }
+        return true;
       })
       .sort((a, b) => a.name.localeCompare(b.name, "ko"));
-  }, [activeFreezer, activeSection, items, normalizedQuery]);
+  }, [activeFreezerId, activeZoneId, freezers, items, normalizedQuery]);
 
-  const counts = useMemo(() => ({
-    main: items.filter((item) => item.freezer === "main").length,
-    kimchi: items.filter((item) => item.freezer === "kimchi").length,
-  }), [items]);
+  const counts = useMemo(() => new Map(freezers.map((freezer) => [
+    freezer.id,
+    items.filter((item) => item.freezerId === freezer.id).length,
+  ])), [freezers, items]);
+  const activeFreezer = getFreezer(freezers, activeFreezerId);
 
   const saveItem = async (draft: Omit<FreezerItem, "id" | "createdAt" | "updatedAt">) => {
     let saved = false;
@@ -50,8 +56,8 @@ export function InventoryApp() {
       saved = await createItem(draft);
     }
     if (saved) {
-      setActiveFreezer(draft.freezer);
-      setActiveSection("all");
+      setActiveFreezerId(draft.freezerId);
+      setActiveZoneId("all");
       setQuery("");
       setEditingItem(undefined);
       setSheetOpen(false);
@@ -59,6 +65,7 @@ export function InventoryApp() {
   };
 
   const openAddSheet = () => {
+    if (!freezers.length) return;
     setEditingItem(undefined);
     setSheetOpen(true);
   };
@@ -103,27 +110,34 @@ export function InventoryApp() {
 
         {!normalizedQuery ? (
           <>
-            <div className="segmented freezer-tabs" aria-label="냉동실 선택">
-              {(Object.keys(FREEZERS) as FreezerId[]).map((freezer) => (
+            <div className="freezer-tab-scroll" aria-label="냉장고 선택">
+              <button
+                type="button"
+                className={activeFreezerId === "all" ? "is-selected" : ""}
+                onClick={() => { setActiveFreezerId("all"); setActiveZoneId("all"); }}
+              >
+                <span>전체</span><strong>{items.length}</strong>
+              </button>
+              {freezers.map((freezer) => (
                 <button
-                  key={freezer}
+                  key={freezer.id}
                   type="button"
-                  className={activeFreezer === freezer ? "is-selected" : ""}
-                  onClick={() => { setActiveFreezer(freezer); setActiveSection("all"); }}
+                  className={activeFreezerId === freezer.id ? "is-selected" : ""}
+                  onClick={() => { setActiveFreezerId(freezer.id); setActiveZoneId("all"); }}
                 >
-                  <span>{FREEZERS[freezer].shortLabel}</span>
-                  <strong>{counts[freezer]}</strong>
+                  <span>{freezer.name}</span>
+                  <strong>{counts.get(freezer.id) ?? 0}</strong>
                 </button>
               ))}
             </div>
-            <div className="filter-row" aria-label="구역 선택">
-              <button className={activeSection === "all" ? "is-selected" : ""} onClick={() => setActiveSection("all")} type="button">전체</button>
-              {SECTIONS[activeFreezer].map((section) => (
-                <button key={section.id} className={activeSection === section.id ? "is-selected" : ""} onClick={() => setActiveSection(section.id)} type="button">
-                  {section.label}
-                </button>
-              ))}
-            </div>
+            {activeFreezer ? (
+              <div className="filter-row" aria-label="구역 선택">
+                <button className={activeZoneId === "all" ? "is-selected" : ""} onClick={() => setActiveZoneId("all")} type="button">전체</button>
+                {activeFreezer.zones.map((zone) => (
+                  <button key={zone.id} className={activeZoneId === zone.id ? "is-selected" : ""} onClick={() => setActiveZoneId(zone.id)} type="button">{zone.label}</button>
+                ))}
+              </div>
+            ) : null}
           </>
         ) : (
           <div className="search-summary">
@@ -133,8 +147,8 @@ export function InventoryApp() {
         )}
 
         <section className="list-section" aria-live="polite">
-          {error ? <p className="error-banner" role="alert">{error}</p> : null}
-          {!ready ? (
+          {error || freezerError ? <p className="error-banner" role="alert">{error || freezerError}</p> : null}
+          {!ready || !freezersReady ? (
             <div className="loading-list" aria-label="목록 불러오는 중"><span /><span /><span /></div>
           ) : visibleItems.length ? (
             <div className="item-list">
@@ -142,7 +156,7 @@ export function InventoryApp() {
                 <article className="item-row" key={item.id}>
                   <button className="item-info" type="button" onClick={() => setViewingItem(item)}>
                     <strong>{item.name}</strong>
-                    <span><MapPin size={14} aria-hidden="true" /> {getLocationLabel(item)}</span>
+                    <span><MapPin size={14} aria-hidden="true" /> {getLocationLabel(item, freezers)}</span>
                     {item.memo ? <small>{item.memo}</small> : null}
                   </button>
                   <QuantityStepper
@@ -174,6 +188,7 @@ export function InventoryApp() {
       {viewingItem ? (
         <ItemDetailSheet
           item={viewingItem}
+          freezers={freezers}
           onClose={() => setViewingItem(undefined)}
           onEdit={() => openEditSheet(viewingItem)}
         />
@@ -182,8 +197,8 @@ export function InventoryApp() {
       {sheetOpen ? (
         <ItemSheet
           item={editingItem}
-          defaultFreezer={activeFreezer}
-          defaultSection={activeSection === "all" ? undefined : activeSection}
+          freezers={freezers}
+          defaultFreezerId={activeFreezerId === "all" ? freezers[0]?.id ?? "" : activeFreezerId}
           onClose={() => { setSheetOpen(false); setEditingItem(undefined); }}
           onSave={saveItem}
           onDelete={editingItem ? async () => {

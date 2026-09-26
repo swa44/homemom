@@ -201,6 +201,67 @@ button:disabled {
   margin-top: 23px;
 }
 
+.freezer-tab-scroll,
+.freezer-picker-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.freezer-tab-scroll {
+  margin: 23px -20px 0;
+  padding: 0 20px 4px;
+}
+
+.freezer-tab-scroll::-webkit-scrollbar,
+.freezer-picker-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.freezer-tab-scroll button,
+.freezer-picker-scroll button {
+  align-items: center;
+  background: #edf1f0;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  color: var(--ink-sub);
+  display: inline-flex;
+  flex: none;
+  font-size: 13px;
+  font-weight: 720;
+  gap: 7px;
+  min-height: 46px;
+  padding: 0 14px;
+  white-space: nowrap;
+}
+
+.freezer-tab-scroll button strong {
+  align-items: center;
+  background: rgba(36, 63, 88, 0.08);
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 10px;
+  height: 23px;
+  justify-content: center;
+  min-width: 23px;
+  padding: 0 6px;
+}
+
+.freezer-tab-scroll button.is-selected,
+.freezer-picker-scroll button.is-selected {
+  background: var(--navy);
+  color: #fff;
+}
+
+.freezer-tab-scroll button.is-selected strong {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.freezer-picker-scroll {
+  padding-bottom: 2px;
+}
+
 .segmented button {
   align-items: center;
   background: transparent;
@@ -1356,6 +1417,237 @@ button:disabled {
   font-size: 11px;
   line-height: 1.45;
   margin: 8px 4px 0;
+}
+
+.settings-section-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 9px;
+  padding: 0 4px;
+}
+
+.settings-section-heading h3 {
+  margin: 0;
+}
+
+.settings-section-heading > button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--mint);
+  display: inline-flex;
+  font-size: 11px;
+  font-weight: 750;
+  gap: 3px;
+}
+
+.freezer-create-form {
+  background: var(--card);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 10px;
+  padding: 15px;
+}
+
+.appliance-type-picker {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.appliance-type-picker button {
+  align-items: center;
+  background: #f2f5f4;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  display: flex;
+  font-size: 12px;
+  font-weight: 720;
+  gap: 6px;
+  justify-content: center;
+  min-height: 44px;
+}
+
+.appliance-type-picker button.is-selected {
+  background: var(--mint-pale);
+  border-color: var(--mint);
+  color: var(--mint);
+}
+
+.freezer-level-inputs {
+  align-items: end;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr 1.2fr 1fr;
+}
+
+.freezer-level-inputs label > span,
+.join-freezer-form label > span {
+  color: var(--ink-sub);
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.freezer-level-inputs input[type="number"],
+.join-freezer-form input {
+  background: #f3f6f5;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  height: 42px;
+  outline: 0;
+  padding: 0 10px;
+  width: 100%;
+}
+
+.door-storage-toggle {
+  align-items: center;
+  display: flex;
+  min-height: 42px;
+}
+
+.door-storage-toggle > span {
+  margin: 0 0 0 6px !important;
+}
+
+.share-household-toggle {
+  align-items: center;
+  background: #f5f8f7;
+  border-radius: 12px;
+  display: flex;
+  gap: 9px;
+  padding: 10px 11px;
+}
+
+.share-household-toggle > span {
+  flex: 1;
+}
+
+.share-household-toggle strong,
+.share-household-toggle small {
+  display: block;
+}
+
+.share-household-toggle strong {
+  font-size: 12px;
+}
+
+.share-household-toggle small {
+  color: var(--ink-sub);
+  font-size: 10px;
+  margin-top: 3px;
+}
+
+.freezer-create-form .primary-button {
+  gap: 5px;
+}
+
+.managed-freezer-list {
+  display: grid;
+  gap: 8px;
+}
+
+.managed-freezer {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 13px 14px;
+}
+
+.managed-freezer-title {
+  align-items: center;
+  display: flex;
+  gap: 11px;
+}
+
+.managed-freezer-title > div {
+  flex: 1;
+}
+
+.managed-freezer-title strong,
+.managed-freezer-title small {
+  display: block;
+}
+
+.managed-freezer-title strong {
+  font-size: 14px;
+}
+
+.managed-freezer-title small {
+  color: var(--ink-sub);
+  font-size: 10px;
+  margin-top: 3px;
+}
+
+.freezer-share-code {
+  align-items: center;
+  background: #f5f8f7;
+  border-radius: 10px;
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  min-height: 38px;
+  padding: 6px 8px 6px 10px;
+}
+
+.freezer-share-code > span {
+  color: var(--ink-sub);
+  font-size: 9px;
+}
+
+.freezer-share-code strong {
+  flex: 1;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-align: right;
+}
+
+.freezer-share-code button {
+  align-items: center;
+  background: var(--mint-pale);
+  border: 0;
+  border-radius: 8px;
+  color: var(--mint);
+  display: flex;
+  height: 30px;
+  justify-content: center;
+  width: 30px;
+}
+
+.join-freezer-form {
+  align-items: end;
+  background: var(--card);
+  border-radius: 16px;
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 13px 14px;
+}
+
+.join-freezer-form label {
+  flex: 1;
+  min-width: 0;
+}
+
+.join-freezer-form button {
+  align-items: center;
+  background: var(--navy);
+  border: 0;
+  border-radius: 10px;
+  color: #fff;
+  display: flex;
+  font-size: 11px;
+  font-weight: 720;
+  gap: 4px;
+  height: 42px;
+  padding: 0 11px;
+}
+
+.join-freezer-form button:disabled {
+  background: #c8cfcd;
 }
 
 .spin {

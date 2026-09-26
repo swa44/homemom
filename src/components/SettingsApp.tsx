@@ -5,6 +5,7 @@ import { CheckCircle2, Download, LogOut, ShieldCheck, Trash2, UserRound } from "
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
 import { FamilySharingCard } from "@/components/FamilySharingCard";
+import { FreezerManagementCard } from "@/components/FreezerManagementCard";
 import { usePwaInstall } from "@/components/PwaInstallProvider";
 import { createClient } from "@/lib/supabase/client";
 
@@ -63,6 +64,7 @@ export function SettingsApp() {
       </section>
 
       <FamilySharingCard />
+      <FreezerManagementCard />
 
       <section className="settings-group">
         <h3>앱</h3>

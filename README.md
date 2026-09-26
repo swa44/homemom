@@ -19,11 +19,14 @@ npm run dev
 2. 냉동실 가족 공유를 위해 [`SUPABASE_FAMILY_SHARING.sql`](./SUPABASE_FAMILY_SHARING.sql)을 이어서 실행합니다.
    - 기존 냉동실 데이터는 현재 소유자의 `우리 집`으로 자동 이전됩니다.
    - 냉동실만 가족 공유되고 장보기 목록은 개인별로 유지됩니다.
-3. Authentication의 Kakao Provider가 활성화되어 있는지 확인합니다.
-4. Authentication → URL Configuration → Redirect URLs에 다음을 등록합니다.
+3. 냉장고 추가와 냉장고별 공유를 위해 [`SUPABASE_DYNAMIC_FREEZERS.sql`](./SUPABASE_DYNAMIC_FREEZERS.sql)을 이어서 실행합니다.
+   - 기존 냉장고와 김치냉장고 및 등록된 품목 위치는 그대로 유지됩니다.
+   - 추가 냉장고는 가족 전체 공유 또는 냉장고 코드 공유를 선택할 수 있습니다.
+4. Authentication의 Kakao Provider가 활성화되어 있는지 확인합니다.
+5. Authentication → URL Configuration → Redirect URLs에 다음을 등록합니다.
    - `http://localhost:3000/auth/callback`
    - `https://homemom.vercel.app/auth/callback`
-5. Vercel에는 `.env.example`의 두 환경변수를 등록합니다.
+6. Vercel에는 `.env.example`의 두 환경변수를 등록합니다.
 
 SQL과 RLS가 적용되기 전에는 로그인 후 목록 조회·저장이 실패합니다.
 

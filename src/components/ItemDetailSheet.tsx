@@ -3,15 +3,17 @@
 import { useEffect } from "react";
 import { CalendarDays, Pencil, X } from "lucide-react";
 import { LocationSelector } from "@/components/LocationSelector";
-import { FREEZERS, type FreezerItem } from "@/lib/types";
+import { getFreezer, type FreezerDefinition, type FreezerItem } from "@/lib/types";
 
 type Props = {
   item: FreezerItem;
+  freezers: FreezerDefinition[];
   onClose: () => void;
   onEdit: () => void;
 };
 
-export function ItemDetailSheet({ item, onClose, onEdit }: Props) {
+export function ItemDetailSheet({ item, freezers, onClose, onEdit }: Props) {
+  const freezer = getFreezer(freezers, item.freezerId);
   useEffect(() => {
     const shell = document.querySelector<HTMLElement>(".site-shell");
     if (shell) shell.style.overflowY = "hidden";
@@ -42,14 +44,9 @@ export function ItemDetailSheet({ item, onClose, onEdit }: Props) {
         <div className="item-detail-location">
           <div className="item-detail-location-heading">
             <span className="detail-label">보관 위치</span>
-            <strong>{FREEZERS[item.freezer].shortLabel}</strong>
+            <strong>{freezer?.name ?? "냉장고"}</strong>
           </div>
-          <LocationSelector
-            freezer={item.freezer}
-            section={item.section}
-            level={item.level}
-            readOnly
-          />
+          {freezer ? <LocationSelector freezer={freezer} compartmentId={item.compartmentId} readOnly /> : null}
         </div>
 
         {item.expiresOn || item.memo ? (

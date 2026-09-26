@@ -197,6 +197,8 @@ where existing.user_id = target.user_id
 insert into public.homemom_items (
   user_id,
   household_id,
+  freezer_id,
+  compartment_id,
   name,
   quantity,
   unit,
@@ -206,12 +208,9 @@ insert into public.homemom_items (
 )
 select
   target.user_id,
-  (
-    select members.household_id
-    from public.homemom_household_members as members
-    where members.user_id = target.user_id
-    limit 1
-  ),
+  members.household_id,
+  freezers.id,
+  compartments.id,
   incoming.name,
   incoming.quantity,
   '개',
@@ -219,7 +218,11 @@ select
   incoming.section,
   incoming.level
 from homemom_import_items as incoming
-cross join homemom_import_target as target;
+cross join homemom_import_target as target
+join public.homemom_household_members as members on members.user_id = target.user_id
+join public.homemom_freezers as freezers on freezers.household_id = members.household_id and freezers.legacy_key = incoming.freezer
+join public.homemom_freezer_zones as zones on zones.freezer_id = freezers.id and zones.zone_key = incoming.section
+join public.homemom_freezer_compartments as compartments on compartments.zone_id = zones.id and compartments.position = incoming.level;
 
 -- 위치별 입력 개수 확인
 select
