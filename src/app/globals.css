@@ -1846,6 +1846,22 @@ button:disabled {
   margin-top: 3px;
 }
 
+.managed-freezer-delete {
+  align-items: center;
+  background: #fff0ee;
+  border: 0;
+  border-radius: 9px;
+  color: #d76259;
+  display: flex;
+  flex: 0 0 34px;
+  height: 34px;
+  justify-content: center;
+}
+
+.managed-freezer-delete:disabled {
+  opacity: 0.45;
+}
+
 .freezer-share-code {
   align-items: center;
   background: #f5f8f7;

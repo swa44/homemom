@@ -400,6 +400,27 @@ begin
 end;
 $$;
 
+create or replace function public.homemom_delete_freezer(requested_freezer_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if auth.uid() is null then raise exception '로그인이 필요합니다.'; end if;
+  if not exists (
+    select 1 from public.homemom_freezers as freezers
+    where freezers.id = requested_freezer_id and freezers.owner_id = auth.uid()
+  ) then
+    raise exception '냉장고 소유자만 삭제할 수 있습니다.';
+  end if;
+
+  delete from public.homemom_items where freezer_id = requested_freezer_id;
+  delete from public.homemom_freezers
+  where id = requested_freezer_id and owner_id = auth.uid();
+end;
+$$;
+
 -- 가족 코드로 새 구성원이 참여하면 가족 공유로 설정된 냉장고도 자동으로 연결합니다.
 create or replace function public.homemom_join_household(requested_code text)
 returns uuid
@@ -499,10 +520,12 @@ grant select on public.homemom_freezer_members to authenticated;
 revoke all on function public.homemom_build_freezer_layout(uuid, text, integer, boolean, integer) from public;
 revoke all on function public.homemom_create_freezer(text, text, integer, boolean, integer, boolean) from public;
 revoke all on function public.homemom_join_freezer(text) from public;
+revoke all on function public.homemom_delete_freezer(uuid) from public;
 grant execute on function public.homemom_can_access_freezer(uuid) to authenticated;
 grant execute on function public.homemom_is_freezer_owner(uuid) to authenticated;
 grant execute on function public.homemom_create_freezer(text, text, integer, boolean, integer, boolean) to authenticated;
 grant execute on function public.homemom_join_freezer(text) to authenticated;
+grant execute on function public.homemom_delete_freezer(uuid) to authenticated;
 
 commit;
 

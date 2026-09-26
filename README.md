@@ -22,6 +22,7 @@ npm run dev
 3. 냉장고 추가와 냉장고별 공유를 위해 [`SUPABASE_DYNAMIC_FREEZERS.sql`](./SUPABASE_DYNAMIC_FREEZERS.sql)을 이어서 실행합니다.
    - 기존 냉장고와 김치냉장고 및 등록된 품목 위치는 그대로 유지됩니다.
    - 추가 냉장고는 가족 전체 공유 또는 냉장고 코드 공유를 선택할 수 있습니다.
+   - 이전 버전의 다중 냉장고 SQL을 이미 실행했다면 [`SUPABASE_DELETE_FREEZER.sql`](./SUPABASE_DELETE_FREEZER.sql)을 한 번 추가로 실행합니다.
 4. Authentication의 Kakao Provider가 활성화되어 있는지 확인합니다.
 5. Authentication → URL Configuration → Redirect URLs에 다음을 등록합니다.
    - `http://localhost:3000/auth/callback`

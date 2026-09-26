@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Copy, DoorOpen, Plus, Refrigerator, UserPlus, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Check, Copy, DoorOpen, Plus, Refrigerator, Trash2, UserPlus, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { ApplianceType } from "@/lib/types";
 import { useFreezers } from "@/lib/use-freezers";
@@ -85,9 +85,16 @@ export function FreezerManagementCard() {
   const [shareHousehold, setShareHousehold] = useState(true);
   const [joinCode, setJoinCode] = useState("");
   const [copiedId, setCopiedId] = useState("");
+  const [currentUserId, setCurrentUserId] = useState("");
+  const [deletingId, setDeletingId] = useState("");
   const [error, setError] = useState("");
   const resolvedBodyLevels = normalizeLevelCount(bodyLevels);
   const resolvedDoorLevels = normalizeLevelCount(doorLevels);
+
+  useEffect(() => {
+    const supabase = createClient();
+    void supabase.auth.getUser().then(({ data }) => setCurrentUserId(data.user?.id ?? ""));
+  }, []);
 
   const createFreezer = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -134,6 +141,27 @@ export function FreezerManagementCard() {
     window.setTimeout(() => setCopiedId(""), 1500);
   };
 
+  const deleteFreezer = async (freezerId: string, freezerName: string) => {
+    const supabase = createClient();
+    const { count } = await supabase
+      .from("homemom_items")
+      .select("id", { count: "exact", head: true })
+      .eq("freezer_id", freezerId);
+    const itemMessage = count === null ? "보관 중인 모든 품목" : `보관 중인 품목 ${count}개`;
+    const confirmed = window.confirm(`${freezerName}를 삭제할까요?\n\n${itemMessage}도 함께 삭제되며 되돌릴 수 없습니다.`);
+    if (!confirmed) return;
+
+    setDeletingId(freezerId);
+    setError("");
+    const { error: deleteError } = await supabase.rpc("homemom_delete_freezer", { requested_freezer_id: freezerId });
+    if (deleteError) {
+      setError("냉장고를 삭제하지 못했어요. 삭제 기능 SQL과 소유자 권한을 확인해 주세요.");
+    } else {
+      await reload();
+    }
+    setDeletingId("");
+  };
+
   return (
     <section className="settings-group freezer-management-group">
       <div className="settings-section-heading">
@@ -162,7 +190,15 @@ export function FreezerManagementCard() {
       <div className="managed-freezer-list">
         {!ready ? <div className="family-loading">냉장고를 불러오는 중…</div> : freezers.map((freezer) => (
           <article className="managed-freezer" key={freezer.id}>
-            <div className="managed-freezer-title"><span className="settings-icon"><Refrigerator size={19} /></span><div><strong>{freezer.name}</strong><small>{freezer.applianceType === "side_by_side" ? "양문형" : "일반형"} · {freezer.zones.reduce((total, zone) => total + zone.compartments.length, 0)}칸</small></div></div>
+            <div className="managed-freezer-title">
+              <span className="settings-icon"><Refrigerator size={19} /></span>
+              <div><strong>{freezer.name}</strong><small>{freezer.applianceType === "side_by_side" ? "양문형" : "일반형"} · {freezer.zones.reduce((total, zone) => total + zone.compartments.length, 0)}칸</small></div>
+              {freezer.ownerId === currentUserId ? (
+                <button className="managed-freezer-delete" type="button" disabled={deletingId === freezer.id} onClick={() => void deleteFreezer(freezer.id, freezer.name)} aria-label={`${freezer.name} 삭제`}>
+                  <Trash2 size={16} />
+                </button>
+              ) : null}
+            </div>
             <div className="freezer-share-code"><span>냉장고 공유 코드</span><strong>{freezer.inviteCode}</strong><button type="button" onClick={() => void copyCode(freezer.id, freezer.inviteCode)}>{copiedId === freezer.id ? <Check size={15} /> : <Copy size={15} />}</button></div>
           </article>
         ))}
