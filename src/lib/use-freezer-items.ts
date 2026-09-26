@@ -57,17 +57,35 @@ export function useFreezerItems() {
   useEffect(() => {
     let active = true;
     const supabase = createClient();
-    void supabase
-      .from("homemom_items")
-      .select("id,name,quantity,unit,freezer,section,level,expires_on,memo,created_at,updated_at")
-      .order("name")
-      .then(({ data, error: fetchError }) => {
-        if (!active) return;
-        if (fetchError) setError("냉동실 목록을 불러오지 못했어요.");
-        else setItems(((data ?? []) as ItemRow[]).map(fromRow));
-        setReady(true);
-      });
-    return () => { active = false; };
+
+    const loadItems = async () => {
+      const { data, error: fetchError } = await supabase
+        .from("homemom_items")
+        .select("id,name,quantity,unit,freezer,section,level,expires_on,memo,created_at,updated_at")
+        .order("name");
+      if (!active) return;
+      if (fetchError) setError("냉동실 목록을 불러오지 못했어요.");
+      else {
+        setItems(((data ?? []) as ItemRow[]).map(fromRow));
+        setError("");
+      }
+      setReady(true);
+    };
+
+    void loadItems();
+    const channel = supabase
+      .channel("homemom-shared-freezer")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "homemom_items" },
+        () => void loadItems(),
+      )
+      .subscribe();
+
+    return () => {
+      active = false;
+      void supabase.removeChannel(channel);
+    };
   }, []);
 
   const createItem = useCallback(async (draft: ItemDraft) => {

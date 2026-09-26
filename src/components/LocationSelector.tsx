@@ -10,7 +10,8 @@ type Props = {
   freezer: FreezerId;
   section: FreezerSection;
   level: 1 | 2 | 3;
-  onChange: (section: FreezerSection, level: 1 | 2 | 3) => void;
+  onChange?: (section: FreezerSection, level: 1 | 2 | 3) => void;
+  readOnly?: boolean;
 };
 
 const VISUAL_SECTIONS: Record<FreezerId, { id: FreezerSection; label: string; kind: "body" | "door" }[]> = {
@@ -26,13 +27,16 @@ const VISUAL_SECTIONS: Record<FreezerId, { id: FreezerSection; label: string; ki
   ],
 };
 
-export function LocationSelector({ freezer, section, level, onChange }: Props) {
+export function LocationSelector({ freezer, section, level, onChange, readOnly = false }: Props) {
   const sections = VISUAL_SECTIONS[freezer];
   const selectedSection = sections.find((candidate) => candidate.id === section) ?? sections[0];
 
   return (
     <div>
-      <div className={`freezer-diagram freezer-diagram-${freezer}`} aria-label={`${FREEZERS[freezer].shortLabel} 위치 선택`}>
+      <div
+        className={`freezer-diagram freezer-diagram-${freezer}${readOnly ? " is-readonly" : ""}`}
+        aria-label={`${FREEZERS[freezer].shortLabel} 위치 ${readOnly ? "표시" : "선택"}`}
+      >
         {sections.map((candidate) => (
           <div
             className={`freezer-zone is-${candidate.kind} is-${candidate.id.replace("_", "-")}`}
@@ -47,8 +51,9 @@ export function LocationSelector({ freezer, section, level, onChange }: Props) {
                     aria-label={`${FREEZERS[freezer].shortLabel} ${candidate.label} ${candidateLevel.label}`}
                     aria-pressed={selected}
                     className={selected ? "is-selected" : ""}
+                    disabled={readOnly}
                     key={candidateLevel.id}
-                    onClick={() => onChange(candidate.id, candidateLevel.id)}
+                    onClick={() => onChange?.(candidate.id, candidateLevel.id)}
                     type="button"
                   >
                     {candidateLevel.label}

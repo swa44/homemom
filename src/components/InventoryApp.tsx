@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Box, MapPin, Plus, Search, X } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
+import { ItemDetailSheet } from "@/components/ItemDetailSheet";
 import { ItemSheet } from "@/components/ItemSheet";
 import { QuantityStepper } from "@/components/QuantityStepper";
 import {
@@ -22,6 +23,7 @@ export function InventoryApp() {
   const [query, setQuery] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<FreezerItem>();
+  const [viewingItem, setViewingItem] = useState<FreezerItem>();
 
   const normalizedQuery = query.trim().toLocaleLowerCase("ko");
   const visibleItems = useMemo(() => {
@@ -62,6 +64,7 @@ export function InventoryApp() {
   };
 
   const openEditSheet = (item: FreezerItem) => {
+    setViewingItem(undefined);
     setEditingItem(item);
     setSheetOpen(true);
   };
@@ -137,7 +140,7 @@ export function InventoryApp() {
             <div className="item-list">
               {visibleItems.map((item) => (
                 <article className="item-row" key={item.id}>
-                  <button className="item-info" type="button" onClick={() => openEditSheet(item)}>
+                  <button className="item-info" type="button" onClick={() => setViewingItem(item)}>
                     <strong>{item.name}</strong>
                     <span><MapPin size={14} aria-hidden="true" /> {getLocationLabel(item)}</span>
                     {item.memo ? <small>{item.memo}</small> : null}
@@ -167,6 +170,14 @@ export function InventoryApp() {
         <Plus size={25} strokeWidth={2.5} />
         <span>추가</span>
       </button>
+
+      {viewingItem ? (
+        <ItemDetailSheet
+          item={viewingItem}
+          onClose={() => setViewingItem(undefined)}
+          onEdit={() => openEditSheet(viewingItem)}
+        />
+      ) : null}
 
       {sheetOpen ? (
         <ItemSheet

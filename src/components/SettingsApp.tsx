@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CheckCircle2, Download, LogOut, ShieldCheck, Trash2, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
+import { FamilySharingCard } from "@/components/FamilySharingCard";
 import { createClient } from "@/lib/supabase/client";
 
 type BeforeInstallPromptEvent = Event & {
@@ -75,6 +76,8 @@ export function SettingsApp() {
         <span className="status-pill"><CheckCircle2 size={14} /> 연결됨</span>
       </section>
 
+      <FamilySharingCard />
+
       <section className="settings-group">
         <h3>앱</h3>
         <button
@@ -98,11 +101,11 @@ export function SettingsApp() {
         <h3>계정과 데이터</h3>
         <div className="settings-row static-row">
           <span className="settings-icon"><ShieldCheck size={19} /></span>
-          <span><strong>개인 데이터 보호</strong><small>로그인한 계정의 기록만 조회하고 수정할 수 있어요.</small></span>
+          <span><strong>데이터 접근 보호</strong><small>우리 집 구성원만 공유 냉동실을 조회하고 수정할 수 있어요.</small></span>
         </div>
         <button className="settings-row danger-row" type="button" onClick={() => void clearData()}>
           <span className="settings-icon"><Trash2 size={19} /></span>
-          <span><strong>모든 기록 삭제</strong><small>냉동실과 장보기 목록을 모두 삭제합니다.</small></span>
+          <span><strong>모든 기록 삭제</strong><small>공유 냉동실과 내 장보기 목록을 모두 삭제합니다.</small></span>
         </button>
         <button className="settings-row" type="button" onClick={() => void logout()}>
           <span className="settings-icon"><LogOut size={19} /></span>

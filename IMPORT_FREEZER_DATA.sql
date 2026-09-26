@@ -11,6 +11,7 @@
 --
 -- 같은 사용자·품목명·위치의 기존 행은 새 수량으로 교체되므로 다시 실행해도 중복되지 않습니다.
 -- 모든 단위는 우선 '개'로 저장합니다.
+-- 가족 공유 SQL을 이미 실행했다면 해당 사용자의 우리 집 냉동실로 입력됩니다.
 
 begin;
 
@@ -195,6 +196,7 @@ where existing.user_id = target.user_id
 
 insert into public.homemom_items (
   user_id,
+  household_id,
   name,
   quantity,
   unit,
@@ -204,6 +206,12 @@ insert into public.homemom_items (
 )
 select
   target.user_id,
+  (
+    select members.household_id
+    from public.homemom_household_members as members
+    where members.user_id = target.user_id
+    limit 1
+  ),
   incoming.name,
   incoming.quantity,
   '개',

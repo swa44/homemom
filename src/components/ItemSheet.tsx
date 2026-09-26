@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Minus, Plus, Trash2, X } from "lucide-react";
 import { LocationSelector } from "@/components/LocationSelector";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/lib/types";
 
 type ItemDraft = Omit<FreezerItem, "id" | "createdAt" | "updatedAt">;
+type SavedLocation = Pick<ItemDraft, "section" | "level">;
 
 type Props = {
   item?: FreezerItem;
@@ -37,8 +38,19 @@ function createDraft(item: FreezerItem | undefined, freezer: FreezerId, section?
   };
 }
 
+function createLocationMemory(item: FreezerItem | undefined, freezer: FreezerId, section?: FreezerSection) {
+  const initial = createDraft(item, freezer, section);
+  const locations: Record<FreezerId, SavedLocation> = {
+    main: { section: "left", level: 1 },
+    kimchi: { section: "body", level: 1 },
+  };
+  locations[initial.freezer] = { section: initial.section, level: initial.level };
+  return locations;
+}
+
 export function ItemSheet({ item, defaultFreezer, defaultSection, onClose, onSave, onDelete }: Props) {
   const [draft, setDraft] = useState(() => createDraft(item, defaultFreezer, defaultSection));
+  const locationMemory = useRef(createLocationMemory(item, defaultFreezer, defaultSection));
 
   useEffect(() => {
     const shell = document.querySelector<HTMLElement>(".site-shell");
@@ -49,7 +61,18 @@ export function ItemSheet({ item, defaultFreezer, defaultSection, onClose, onSav
   }, []);
 
   const changeFreezer = (freezer: FreezerId) => {
-    setDraft((current) => ({ ...current, freezer, section: SECTIONS[freezer][0].id }));
+    setDraft((current) => {
+      locationMemory.current[current.freezer] = { section: current.section, level: current.level };
+      const saved = locationMemory.current[freezer];
+      return { ...current, freezer, section: saved.section, level: saved.level };
+    });
+  };
+
+  const changeLocation = (section: FreezerSection, level: 1 | 2 | 3) => {
+    setDraft((current) => {
+      locationMemory.current[current.freezer] = { section, level };
+      return { ...current, section, level };
+    });
   };
 
   const submit = (event: React.FormEvent) => {
@@ -135,7 +158,7 @@ export function ItemSheet({ item, defaultFreezer, defaultSection, onClose, onSav
               freezer={draft.freezer}
               section={draft.section}
               level={draft.level}
-              onChange={(section, level) => setDraft({ ...draft, section, level })}
+              onChange={changeLocation}
             />
           </fieldset>
 
