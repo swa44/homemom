@@ -23,7 +23,14 @@ export function SettingsApp() {
   }, []);
 
   const clearData = async () => {
-    if (!window.confirm("냉동실과 장보기 기록을 모두 삭제할까요? 삭제 후 복구할 수 없습니다.")) return;
+    const confirmation = window.prompt(
+      "냉동실과 장보기 기록이 모두 삭제되며 복구할 수 없습니다.\n\n계속하려면 아래에 '삭제하겠습니다'를 입력해 주세요.",
+    );
+    if (confirmation === null) return;
+    if (confirmation.trim() !== "삭제하겠습니다") {
+      window.alert("문구가 일치하지 않아 삭제하지 않았어요.");
+      return;
+    }
     const supabase = createClient();
     const [{ error: itemsError }, { error: shoppingError }] = await Promise.all([
       supabase.from("homemom_items").delete().not("id", "is", null),

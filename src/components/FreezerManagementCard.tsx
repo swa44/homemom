@@ -148,8 +148,14 @@ export function FreezerManagementCard() {
       .select("id", { count: "exact", head: true })
       .eq("freezer_id", freezerId);
     const itemMessage = count === null ? "보관 중인 모든 품목" : `보관 중인 품목 ${count}개`;
-    const confirmed = window.confirm(`${freezerName}를 삭제할까요?\n\n${itemMessage}도 함께 삭제되며 되돌릴 수 없습니다.`);
-    if (!confirmed) return;
+    const confirmation = window.prompt(
+      `${freezerName}를 삭제하면 ${itemMessage}도 함께 삭제되며 되돌릴 수 없습니다.\n\n계속하려면 아래에 '삭제하겠습니다'를 입력해 주세요.`,
+    );
+    if (confirmation === null) return;
+    if (confirmation.trim() !== "삭제하겠습니다") {
+      window.alert("문구가 일치하지 않아 삭제하지 않았어요.");
+      return;
+    }
 
     setDeletingId(freezerId);
     setError("");
