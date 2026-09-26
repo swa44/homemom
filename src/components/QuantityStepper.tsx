@@ -7,13 +7,13 @@ type Props = {
   itemName: string;
   quantity: number;
   unit: string;
-  onChange: (quantity: number) => void;
+  onChange: (quantity: number) => boolean | void | Promise<boolean | void>;
 };
 
 export function QuantityStepper({ itemName, quantity, unit, onChange }: Props) {
   const [draft, setDraft] = useState(String(quantity));
 
-  const commit = () => {
+  const commit = async () => {
     if (!draft.trim()) {
       setDraft(String(quantity));
       return;
@@ -23,8 +23,8 @@ export function QuantityStepper({ itemName, quantity, unit, onChange }: Props) {
       setDraft(String(quantity));
       return;
     }
-    onChange(nextQuantity);
-    if (nextQuantity > 0) setDraft(String(nextQuantity));
+    const changed = await onChange(nextQuantity);
+    setDraft(changed === false ? String(quantity) : String(nextQuantity));
   };
 
   return (
@@ -41,7 +41,7 @@ export function QuantityStepper({ itemName, quantity, unit, onChange }: Props) {
           min="0"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
-          onBlur={commit}
+          onBlur={() => void commit()}
           onKeyDown={(event) => {
             if (event.key === "Enter") event.currentTarget.blur();
           }}

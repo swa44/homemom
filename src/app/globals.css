@@ -690,6 +690,134 @@ button:disabled {
   min-height: 40px;
 }
 
+.freezer-diagram {
+  background: #e8eeec;
+  border: 1px solid #dce5e2;
+  border-radius: 19px;
+  display: grid;
+  gap: 5px;
+  overflow: hidden;
+  padding: 9px;
+}
+
+.freezer-diagram-main {
+  grid-template-columns: 0.72fr 1fr 1fr 0.72fr;
+}
+
+.freezer-diagram-kimchi {
+  grid-template-columns: 1.55fr 0.85fr;
+}
+
+.freezer-zone {
+  background: #fff;
+  border: 1px solid #d7e0de;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 5px;
+}
+
+.freezer-zone.is-body + .freezer-zone.is-body {
+  border-left-color: #edf1f0;
+}
+
+.freezer-zone.is-door {
+  background: #f5f8f7;
+  box-shadow: inset 0 0 0 2px rgba(95, 167, 157, 0.06);
+  margin-bottom: 15px;
+  margin-top: 15px;
+}
+
+.freezer-zone.is-left-door {
+  border-radius: 15px 6px 6px 15px;
+  transform: translateX(-2px);
+}
+
+.freezer-zone.is-right-door,
+.freezer-diagram-kimchi .freezer-zone.is-door {
+  border-radius: 6px 15px 15px 6px;
+  transform: translateX(2px);
+}
+
+.freezer-zone-label {
+  align-items: center;
+  color: var(--ink-sub);
+  display: flex;
+  font-size: 10px;
+  font-weight: 740;
+  justify-content: center;
+  line-height: 1.2;
+  min-height: 31px;
+  text-align: center;
+  word-break: keep-all;
+}
+
+.freezer-levels {
+  display: grid;
+  flex: 1;
+  gap: 5px;
+  grid-template-rows: repeat(3, minmax(46px, 1fr));
+}
+
+.freezer-levels button {
+  background: #f7faf9;
+  border: 1px solid #dfe7e5;
+  border-radius: 8px;
+  color: var(--navy);
+  font-size: 11px;
+  font-weight: 740;
+  min-width: 0;
+  padding: 4px 2px;
+}
+
+.freezer-levels button.is-selected {
+  background: var(--mint);
+  border-color: var(--mint);
+  box-shadow: 0 4px 12px rgba(53, 114, 105, 0.2);
+  color: #fff;
+}
+
+.selected-location {
+  align-items: center;
+  background: var(--mint-pale);
+  border-radius: 12px;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  margin: 8px 0 0;
+  padding: 10px 12px;
+}
+
+.selected-location span {
+  color: var(--ink-sub);
+  flex: none;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.selected-location strong {
+  color: var(--navy);
+  font-size: 12px;
+  text-align: right;
+}
+
+@media (max-width: 370px) {
+  .freezer-diagram {
+    gap: 4px;
+    padding: 7px;
+  }
+
+  .freezer-zone {
+    padding: 4px;
+  }
+
+  .freezer-zone-label,
+  .freezer-levels button {
+    font-size: 9px;
+  }
+}
+
 .extra-fields {
   border-bottom: 1px solid var(--line);
   border-top: 1px solid var(--line);

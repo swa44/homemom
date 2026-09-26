@@ -66,6 +66,16 @@ export function InventoryApp() {
     setSheetOpen(true);
   };
 
+  const changeQuantity = async (item: FreezerItem, quantity: number) => {
+    if (item.quantity > 0 && quantity <= 0) {
+      const shouldEmpty = window.confirm(
+        `“${item.name}” 수량을 0으로 만들고 냉동실 목록에서 비울까요?`,
+      );
+      if (!shouldEmpty) return false;
+    }
+    return updateQuantity(item, quantity);
+  };
+
   return (
     <>
       <main className="page inventory-page">
@@ -137,7 +147,7 @@ export function InventoryApp() {
                     itemName={item.name}
                     quantity={item.quantity}
                     unit={item.unit}
-                    onChange={(quantity) => void updateQuantity(item, quantity)}
+                    onChange={(quantity) => changeQuantity(item, quantity)}
                   />
                 </article>
               ))}

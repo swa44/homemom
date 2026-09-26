@@ -27,7 +27,7 @@ export function LoginApp({ hasError }: { hasError: boolean }) {
         <span className="login-snow small"><Snowflake /></span>
         <div className="freezer-card">
           <div className="freezer-door"><span /><span /><span /></div>
-          <div className="freezer-search"><Search size={15} /> 만두는 오른쪽 1칸</div>
+          <div className="freezer-search"><Search size={15} /> 만두는 오른쪽 상단</div>
         </div>
       </div>
       <div className="login-copy">

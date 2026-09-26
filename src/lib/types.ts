@@ -44,10 +44,20 @@ export const SECTIONS: Record<FreezerId, { id: FreezerSection; label: string }[]
 
 export const UNITS = ["개", "봉", "팩", "병", "캔", "g", "kg", "ml", "L"];
 
+export const LEVELS = [
+  { id: 1 as const, label: "상단" },
+  { id: 2 as const, label: "중단" },
+  { id: 3 as const, label: "하단" },
+];
+
+export function getLevelLabel(level: 1 | 2 | 3) {
+  return LEVELS.find((candidate) => candidate.id === level)?.label ?? `${level}칸`;
+}
+
 export function getSectionLabel(freezer: FreezerId, section: FreezerSection) {
   return SECTIONS[freezer].find((candidate) => candidate.id === section)?.label ?? section;
 }
 
 export function getLocationLabel(item: Pick<FreezerItem, "freezer" | "section" | "level">) {
-  return `${FREEZERS[item.freezer].shortLabel} · ${getSectionLabel(item.freezer, item.section)} · ${item.level}칸`;
+  return `${FREEZERS[item.freezer].shortLabel} · ${getSectionLabel(item.freezer, item.section)} · ${getLevelLabel(item.level)}`;
 }

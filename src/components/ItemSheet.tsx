@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ChevronDown, Minus, Plus, Trash2, X } from "lucide-react";
+import { LocationSelector } from "@/components/LocationSelector";
 import {
   FREEZERS,
   SECTIONS,
@@ -130,28 +131,12 @@ export function ItemSheet({ item, defaultFreezer, defaultSection, onClose, onSav
                 </button>
               ))}
             </div>
-            <div className="location-grid">
-              <label className="field">
-                <span>구역</span>
-                <span className="select-wrap">
-                  <select value={draft.section} onChange={(event) => setDraft({ ...draft, section: event.target.value as FreezerSection })}>
-                    {SECTIONS[draft.freezer].map((section) => <option key={section.id} value={section.id}>{section.label}</option>)}
-                  </select>
-                  <ChevronDown size={16} aria-hidden="true" />
-                </span>
-              </label>
-              <label className="field">
-                <span>칸</span>
-                <span className="select-wrap">
-                  <select value={draft.level} onChange={(event) => setDraft({ ...draft, level: Number(event.target.value) as 1 | 2 | 3 })}>
-                    <option value={1}>1칸 · 위</option>
-                    <option value={2}>2칸 · 가운데</option>
-                    <option value={3}>3칸 · 아래</option>
-                  </select>
-                  <ChevronDown size={16} aria-hidden="true" />
-                </span>
-              </label>
-            </div>
+            <LocationSelector
+              freezer={draft.freezer}
+              section={draft.section}
+              level={draft.level}
+              onChange={(section, level) => setDraft({ ...draft, section, level })}
+            />
           </fieldset>
 
           <details className="extra-fields">
